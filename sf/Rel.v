@@ -98,14 +98,30 @@ Proof.
 (** Show that the [total_relation] defined in earlier is not a partial
     function. *)
 
-(* FILL IN HERE *)
+Theorem tr_not_a_partial_function :
+  ~ (partial_function total_relation).
+Proof.
+  unfold not. unfold partial_function. 
+  intros.
+  assert (0 = 1) as Nonsense. { 
+    apply H with (x := 0).
+    - apply tle. reflexivity.
+    - apply tge. unfold not. intros. inversion H0. }
+  inversion Nonsense.   Qed.
 (** [] *)
+
 
 (** **** Exercise: 2 stars, optional  *)
 (** Show that the [empty_relation] that we defined earlier is a
     partial function. *)
 
-(* FILL IN HERE *)
+Theorem er_not_a_partial_function :
+  partial_function empty_relation.
+Proof.
+  unfold partial_function. 
+  intros. inversion H. inversion H1. rewrite <- H4 in H5.
+  induction H5. reflexivity.
+Qed.
 (** [] *)
 
 (* ----------------------------------------------------------------- *)
@@ -160,7 +176,8 @@ Proof.
   unfold lt. unfold transitive.
   intros n m o Hnm Hmo.
   induction Hmo as [| m' Hm'o].
-    (* FILL IN HERE *) Admitted.
+  apply le_S. apply Hnm. apply le_S. apply IHHm'o.
+Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, optional  *)
@@ -172,7 +189,9 @@ Proof.
   unfold lt. unfold transitive.
   intros n m o Hnm Hmo.
   induction o as [| o'].
-  (* FILL IN HERE *) Admitted.
+  inversion Hmo. apply le_S. inversion Hmo. rewrite <- H0.
+  apply Hnm. apply IHo'. apply H0.
+Qed.
 (** [] *)
 
 (** The transitivity of [le], in turn, can be used to prove some facts
@@ -190,7 +209,10 @@ Qed.
 Theorem le_S_n : forall n m,
   (S n <= S m) -> (n <= m).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. inversion H. reflexivity.
+  apply le_trans with (S n). apply le_S. apply le_n.
+  apply H1.
+Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, optional (le_Sn_n_inf)  *)
@@ -202,7 +224,10 @@ Proof.
     writing an informal proof without doing the formal proof first.
 
     Proof:
-    (* FILL IN HERE *)
+    When n = 0, 1 <= 0 -> False, so ~ (1 <= 0)
+    If when n = k, ~ (S k <= k), then S k <= k -> False.
+    When n = k + 1, S (k + 1) = S k + 1, S (k + 1) <= k + 1 -> S k + 1 <= k + 1 -> S k <= k -> False.
+    Qed.
     []
  *)
 
@@ -210,7 +235,12 @@ Proof.
 Theorem le_Sn_n : forall n,
   ~ (S n <= n).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  unfold not. intros. induction n. 
+  - inversion H. 
+  - apply IHn. inversion H. 
+    + apply H. 
+    + apply le_trans with (S (S n)). apply le_S. apply le_n. apply H1.
+Qed.
 (** [] *)
 
 (** Reflexivity and transitivity are the main concepts we'll need for
@@ -229,7 +259,11 @@ Definition symmetric {X: Type} (R: relation X) :=
 Theorem le_not_symmetric :
   ~ (symmetric le).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  unfold not. unfold symmetric.
+  intros.
+  assert (1 <= 0). { apply H. apply le_S. apply le_n. }
+  inversion H0.
+Qed.
 (** [] *)
 
 (** A relation [R] is _antisymmetric_ if [R a b] and [R b a] together
@@ -243,7 +277,12 @@ Definition antisymmetric {X: Type} (R: relation X) :=
 Theorem le_antisymmetric :
   antisymmetric le.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  unfold antisymmetric.
+  intros a. induction a.
+  intros. inversion H. reflexivity. rewrite <- H2 in H0. inversion H0.
+  intros. destruct b. inversion H. apply f_equal.
+  apply IHa. apply le_S_n. apply H. apply le_S_n. apply H0.
+Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, optional  *)
@@ -252,7 +291,11 @@ Theorem le_step : forall n m p,
   m <= S p ->
   n <= p.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  unfold lt.
+  intros.
+  apply le_S_n. apply le_trans with m.
+  apply H. apply H0.
+Qed.
 (** [] *)
 
 (* ----------------------------------------------------------------- *)
@@ -368,7 +411,10 @@ Lemma rsc_trans :
       clos_refl_trans_1n R y z ->
       clos_refl_trans_1n R x z.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. induction H. 
+  - apply H0.
+  - apply rt1n_trans with y. apply H. apply IHclos_refl_trans_1n. apply H0.
+Qed.
 (** [] *)
 
 (** Then we use these facts to prove that the two definitions of
@@ -380,7 +426,12 @@ Theorem rtc_rsc_coincide :
          forall (X:Type) (R: relation X) (x y : X),
   clos_refl_trans R x y <-> clos_refl_trans_1n R x y.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  split.
+  - intros. induction H. apply rsc_R. apply H. apply rt1n_refl. 
+    apply rsc_trans with y. apply IHclos_refl_trans1. apply IHclos_refl_trans2.
+  - intros. induction H. apply rt_refl. 
+    apply rt_trans with y. apply rt_step. apply H. apply IHclos_refl_trans_1n.
+Qed.
 (** [] *)
 
 (** $Date: 2016-05-26 16:17:19 -0400 (Thu, 26 May 2016) $ *)
