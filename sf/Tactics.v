@@ -876,13 +876,19 @@ Proof.
     in which all occurrences of [e] (in the goal and in the context)
     are replaced by [c]. *)
 
+
 (** **** Exercise: 3 stars, optional (combine_split)  *)
 Theorem combine_split : forall X Y (l : list (X * Y)) l1 l2,
   split l = (l1, l2) ->
   combine l1 l2 = l.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros X Y l. induction l as [| [x y] l'].
+  - simpl. intros l1 l2 h. inversion h. reflexivity.
+  - intros l1 l2. simpl. destruct (split l').
+    destruct l1. intros h. inversion h. destruct l2. intros h. inversion h. 
+    intros h. inversion h. simpl. rewrite -> IHl'. reflexivity.
+    rewrite -> H1. rewrite -> H3. reflexivity.
+Qed.
 
 (** However, [destruct]ing compound expressions requires a bit of
     care, as such [destruct]s can sometimes erase information we need
@@ -952,7 +958,18 @@ Theorem bool_fn_applied_thrice :
   forall (f : bool -> bool) (b : bool),
   f (f (f b)) = f b.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. destruct b.
+  - destruct (f true) eqn:ftrue.
+    + rewrite -> ftrue. rewrite -> ftrue. reflexivity.
+    + destruct (f false) eqn:ffalse.
+      * rewrite -> ftrue. reflexivity.
+      * rewrite -> ffalse. reflexivity.
+  - destruct (f false) eqn:ffalse.
+    + destruct (f true) eqn:ftrue.
+      * rewrite -> ftrue. reflexivity.
+      * rewrite -> ffalse. reflexivity.
+    + rewrite -> ffalse. rewrite -> ffalse. reflexivity.
+Qed. 
 (** [] *)
 
 (* ################################################################# *)
@@ -1025,7 +1042,12 @@ Proof.
 Theorem beq_nat_sym : forall (n m : nat),
   beq_nat n m = beq_nat m n.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n.
+  induction n.
+  intros m. destruct m. reflexivity. reflexivity.
+  intros m. destruct m. reflexivity.
+  simpl. apply IHn.
+Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars, advancedM? (beq_nat_sym_informal)  *)
