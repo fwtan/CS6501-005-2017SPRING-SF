@@ -570,19 +570,35 @@ Qed.
 Theorem iff_refl : forall P : Prop,
   P <-> P.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. split.
+  - intros. apply H.
+  - intros. apply H.
+Qed.
+
 
 Theorem iff_trans : forall P Q R : Prop,
   (P <-> Q) -> (Q <-> R) -> (P <-> R).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros P Q R [HPQ HQP] [HQR HRQ]. split.
+  - intros. apply HQR. apply HPQ. apply H.
+  - intros. apply HQP. apply HRQ. apply H.
+Qed. 
 (** [] *)
 
 (** **** Exercise: 3 stars (or_distributes_over_and)  *)
 Theorem or_distributes_over_and : forall P Q R : Prop,
   P \/ (Q /\ R) <-> (P \/ Q) /\ (P \/ R).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros P Q R. split.
+  - intros [HP | [HQ HR]].
+    + split. left. apply HP. left. apply HP.
+    + split. right. apply HQ. right. apply HR.
+  - intros [[HP1 | HQ] [HP2 | HR]].
+    + left. apply HP1.
+    + left. apply HP1.
+    + left. apply HP2.
+    + right. split. apply HQ. apply HR.
+Qed. 
 (** [] *)
 
 (** Some of Coq's tactics treat [iff] statements specially, avoiding
@@ -682,7 +698,9 @@ Proof.
 Theorem dist_not_exists : forall (X:Type) (P : X -> Prop),
   (forall x, P x) -> ~ (exists x, ~ P x).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros X P H1. unfold not. intros H2.
+  inversion H2. apply H in H1. inversion H1.
+Qed. 
 (** [] *)
 
 (** **** Exercise: 2 stars (dist_exists_or)  *)
@@ -692,7 +710,14 @@ Proof.
 Theorem dist_exists_or : forall (X:Type) (P Q : X -> Prop),
   (exists x, P x \/ Q x) <-> (exists x, P x) \/ (exists x, Q x).
 Proof.
-   (* FILL IN HERE *) Admitted.
+  intros X P Q. split. 
+   - intros. inversion H. inversion H0. 
+      + left. exists x. apply H1.
+      + right. exists x. apply H1.
+   - intros. inversion H. 
+      + inversion H0. exists x. left. apply H1.
+      + inversion H0. exists x. right. apply H1.
+Qed.
 (** [] *)
 
 (* ################################################################# *)
