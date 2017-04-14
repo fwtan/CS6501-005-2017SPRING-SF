@@ -151,7 +151,13 @@ Qed.
 Example and_exercise :
   forall n m : nat, n + m = 0 -> n = 0 /\ m = 0.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m H. apply and_intro.
+  - destruct m. 
+    + rewrite <- plus_n_O in H. apply H. 
+    + rewrite <- plus_n_Sm in H. inversion H.
+  - destruct n. simpl in H. 
+    + apply H.  
+    + rewrite -> plus_comm in H. rewrite <- plus_n_Sm in H. inversion H. Qed.
 (** [] *)
 
 (** So much for proving conjunctive statements.  To go in the other
@@ -225,7 +231,8 @@ Proof.
 Lemma proj2 : forall P Q : Prop,
   P /\ Q -> Q.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros P Q [HP HQ].
+  apply HQ.  Qed.
 (** [] *)
 
 (** Finally, we sometimes need to rearrange the order of conjunctions
@@ -252,7 +259,12 @@ Theorem and_assoc : forall P Q R : Prop,
   P /\ (Q /\ R) -> (P /\ Q) /\ R.
 Proof.
   intros P Q R [HP [HQ HR]].
-  (* FILL IN HERE *) Admitted.
+  split.
+    - split. 
+      + apply HP.
+      + apply HQ.
+    - apply HR.
+Qed.
 (** [] *)
 
 (** By the way, the infix notation [/\] is actually just syntactic
@@ -315,14 +327,20 @@ Qed.
 Lemma mult_eq_0 :
   forall n m, n * m = 0 -> n = 0 \/ m = 0.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m H. induction n.
+  - left. reflexivity.
+  - right. simpl in H. apply and_exercise in H.
+    apply proj1 in H. apply H. Qed.
 (** [] *)
 
 (** **** Exercise: 1 star (or_commut)  *)
 Theorem or_commut : forall P Q : Prop,
   P \/ Q  -> Q \/ P.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros P Q [HP | HQ].
+  - right. apply HP.
+  - left. apply HQ.
+Qed.
 (** [] *)
 
 (* ================================================================= *)
@@ -377,7 +395,7 @@ Proof.
 Fact not_implies_our_not : forall (P:Prop),
   ~ P -> (forall (Q:Prop), P -> Q).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. apply ex_falso_quodlibet. apply H. apply H0. Qed.
 (** [] *)
 
 (** This is how we use [not] to state that [0] and [1] are different
@@ -436,14 +454,16 @@ Proof.
 Theorem contrapositive : forall (P Q : Prop),
   (P -> Q) -> (~Q -> ~P).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros P Q H HQ. unfold not. unfold not in HQ. 
+  intros HP. apply H in HP. apply HQ in HP. apply HP. Qed.
 (** [] *)
 
 (** **** Exercise: 1 star (not_both_true_and_false)  *)
 Theorem not_both_true_and_false : forall P : Prop,
   ~ (P /\ ~P).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. unfold not.
+  intros [H1 H2]. apply H2. apply H1. Qed.
 (** [] *)
 
 (** **** Exercise: 1 star, advancedM (informal_not_PNP)  *)
