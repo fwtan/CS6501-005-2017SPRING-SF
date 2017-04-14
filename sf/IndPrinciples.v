@@ -61,7 +61,11 @@ Proof.
 Theorem plus_one_r' : forall n:nat,
   n + 1 = S n.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  apply nat_ind.
+  - reflexivity. 
+  - intros. rewrite -> plus_comm. rewrite <- plus_n_Sm.
+    rewrite -> plus_comm. rewrite -> H. reflexivity. 
+Qed. 
 (** [] *)
 
 (** Coq generates induction principles for every datatype defined with
@@ -106,6 +110,10 @@ Inductive rgb : Type :=
   | green : rgb
   | blue : rgb.
 Check rgb_ind.
+
+(* Answer 
+rgb_ind : forall P : rgb -> Prop, P red -> P green -> P blue -> forall r : rgb, P r *)
+
 (** [] *)
 
 (** Here's another example, this time with one of the constructors
@@ -131,6 +139,16 @@ Check natlist_ind.
 Inductive natlist1 : Type :=
   | nnil1 : natlist1
   | nsnoc1 : natlist1 -> nat -> natlist1.
+
+Check natlist1_ind.
+
+(* Answer
+natlist1_ind
+     : forall P : natlist1 -> Prop,
+       P nnil1 ->
+       (forall n : natlist1, P n -> forall n0 : nat, P (nsnoc1 n n0)) ->
+       forall n : natlist1, P n
+*)
 
 (** Now what will the induction principle look like? *)
 (** [] *)
@@ -161,6 +179,18 @@ Inductive byntree : Type :=
  | nbranch : yesno -> byntree -> byntree -> byntree.
 (** [] *)
 
+Check byntree_ind.
+
+(* Answer
+byntree_ind
+     : forall P : byntree -> Prop,
+       P bempty ->
+       (forall y : yesno, P (bleaf y)) ->
+       (forall (y : yesno) (b : byntree),
+        P b -> forall b0 : byntree, P b0 -> P (nbranch y b b0)) ->
+       forall b : byntree, P b
+*)
+
 (** **** Exercise: 1 star, optional (ex_set)  *)
 (** Here is an induction principle for an inductively defined
     set.
@@ -174,8 +204,10 @@ Inductive byntree : Type :=
     Give an [Inductive] definition of [ExSet]: *)
 
 Inductive ExSet : Type :=
-  (* FILL IN HERE *)
-.
+  | con1 : bool -> ExSet
+  | con2 : nat -> ExSet -> ExSet.
+
+Check ExSet_ind.
 (** [] *)
 
 (* ################################################################# *)
@@ -216,6 +248,14 @@ Inductive tree (X:Type) : Type :=
   | leaf : X -> tree X
   | node : tree X -> tree X -> tree X.
 Check tree_ind.
+
+(* Answer
+tree_ind
+     : forall (X : Type) (P : tree X -> Prop),
+       (forall x : X, P (leaf X x)) ->
+       (forall t : tree X, P t -> forall t0 : tree X, P t0 -> P (node X t t0)) ->
+       forall t : tree X, P t
+*)
 (** [] *)
 
 (** **** Exercise: 1 star, optional (mytype)  *)
@@ -230,6 +270,13 @@ Check tree_ind.
                forall n : nat, P (constr3 X m n)) ->
             forall m : mytype X, P m
 *) 
+Inductive mytype (X:Type) : Type :=
+  | constr1 : X -> mytype X
+  | constr2 : nat -> mytype X
+  | constr3 : mytype X -> nat -> mytype X.
+
+Check mytype_ind.
+
 (** [] *)
 
 (** **** Exercise: 1 star, optional (foo)  *)
@@ -244,6 +291,14 @@ Check tree_ind.
                (forall n : nat, P (f1 n)) -> P (quux X Y f1)) ->
              forall f2 : foo X Y, P f2
 *) 
+
+Inductive foo (X Y:Type) : Type :=
+  | bar : X -> foo X Y
+  | baz : Y -> foo X Y
+  | quux : (nat-> foo X Y) -> foo X Y.
+
+Check foo_ind.
+
 (** [] *)
 
 (** **** Exercise: 1 star, optional (foo')  *)
@@ -253,16 +308,18 @@ Inductive foo' (X:Type) : Type :=
   | C1 : list X -> foo' X -> foo' X
   | C2 : foo' X.
 
+Check foo'_ind.
+
 (** What induction principle will Coq generate for [foo']?  Fill
    in the blanks, then check your answer with Coq.)
 
      foo'_ind :
         forall (X : Type) (P : foo' X -> Prop),
               (forall (l : list X) (f : foo' X),
-                    _______________________ ->
-                    _______________________   ) ->
-             ___________________________________________ ->
-             forall f : foo' X, ________________________
+                    _________P f___________ ->
+                    ______P (C1 X l f)________) ->
+             _______________P (C2 X)_______________ ->
+             forall f : foo' X, _____P f_______________
 *)
 
 (** [] *)
@@ -404,7 +461,28 @@ Proof.
     induction, and state the theorem and proof in terms of this
     defined proposition.  *)
 
-(* FILL IN HERE *)
+Definition assoc_prop (n m p:nat) : Prop :=
+  n + (m + p) = (n + m) + p.
+
+Theorem plus_assoc_new : forall n m p : nat,
+  assoc_prop n m p.
+Proof.
+  intros. unfold assoc_prop. induction n.
+  - rewrite -> plus_O_n. rewrite -> plus_O_n. reflexivity.
+  - simpl. rewrite -> IHn. reflexivity.
+Qed.
+
+Definition comm_prop (n m : nat) : Prop :=
+  n + m = m + n.
+
+Theorem plus_comm_new : forall n m : nat,
+  comm_prop n m.
+Proof.
+  intros. unfold comm_prop. induction m as [| m'].
+  - simpl. rewrite <- plus_n_O. reflexivity.
+  - simpl. rewrite <- IHm'. rewrite <- plus_n_Sm. reflexivity.
+Qed.
+
 (** [] *)
 
 (* ################################################################# *)
