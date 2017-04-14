@@ -1,7 +1,6 @@
 (** * IndProp: Inductively Defined Propositions *)
 
 Require Export Logic.
-Require Export Tactics.
 
 (* ################################################################# *)
 (** * Inductively Defined Propositions *)

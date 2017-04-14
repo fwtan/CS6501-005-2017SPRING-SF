@@ -494,6 +494,7 @@ Proof.
     reflexivity.
 Qed.
 
+
 (** Since reasoning with [ex_falso_quodlibet] is quite common, Coq
     provides a built-in tactic, [exfalso], for applying it. *)
 
