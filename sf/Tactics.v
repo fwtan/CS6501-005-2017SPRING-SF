@@ -76,7 +76,8 @@ Theorem silly_ex :
      evenb 3 = true ->
      oddb 4 = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros.
+  apply H. apply H0. Qed.
 (** [] *)
 
 (** To use the [apply] tactic, the (conclusion of the) fact
@@ -105,11 +106,13 @@ Proof.
     just hypotheses in the context.  Remember that [Search] is
     your friend.) *)
 
+
 Theorem rev_exercise1 : forall (l l' : list nat),
      l = rev l' ->
      l' = rev l.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. rewrite -> H. symmetry.
+  apply rev_involutive. Qed.
 (** [] *)
 
 (** **** Exercise: 1 star, optionalM (apply_rewrite)  *)
@@ -177,7 +180,10 @@ Example trans_eq_exercise : forall (n m o p : nat),
      (n + p) = m ->
      (n + p) = (minustwo o).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. symmetry. apply trans_eq with m. 
+  - symmetry. apply H.
+  - symmetry. apply H0. Qed.
+  
 (** [] *)
 
 (* ################################################################# *)
@@ -254,7 +260,7 @@ Example inversion_ex3 : forall (X : Type) (x y z : X) (l j : list X),
   y :: l = x :: j ->
   x = y.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. inversion H. inversion H0. symmetry. apply H2. Qed.
 (** [] *)
 
 (** When used on a hypothesis involving an equality between
@@ -318,7 +324,7 @@ Example inversion_ex6 : forall (X : Type)
   y :: l = z :: j ->
   x = z.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. inversion H. Qed.
 (** [] *)
 
 (** To summarize this discussion, suppose [H] is a hypothesis in the
@@ -404,12 +410,20 @@ Proof.
 (** Practice using "in" variants in this exercise.  (Hint: use
     [plus_n_Sm].) *)
 
+
 Theorem plus_n_n_injective : forall n m,
      n + n = m + m ->
      n = m.
 Proof.
   intros n. induction n as [| n'].
-    (* FILL IN HERE *) Admitted.
+  - intros m H. rewrite <- double_plus in H. rewrite <- double_plus in H.
+    simpl in H. induction m. reflexivity. inversion H.
+  - intros m H. induction m. 
+    + inversion H.
+    + rewrite <- plus_n_Sm in H. rewrite <- plus_n_Sm in H. inversion H.
+      apply IHn' in H1. rewrite ->H1. reflexivity. Qed.
+
+
 (** [] *)
 
 (* ################################################################# *)
@@ -565,7 +579,9 @@ Proof.
 Theorem beq_nat_true : forall n m,
     beq_nat n m = true -> n = m.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  induction n.
+  - intros m H. induction m. reflexivity. inversion H. 
+  - intros m H. induction m. inversion H. inversion H. apply IHn in H1. rewrite <- H1. reflexivity. Qed. 
 (** [] *)
 
 (** **** Exercise: 2 stars, advancedM (beq_nat_true_informal)  *)
@@ -686,11 +702,18 @@ Qed.
 (** **** Exercise: 3 stars, recommended (gen_dep_practice)  *)
 (** Prove this by induction on [l]. *)
 
+
 Theorem nth_error_after_last: forall (n : nat) (X : Type) (l : list X),
      length l = n ->
      nth_error l n = None.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n X l.
+  generalize dependent n.
+  induction l.
+  - intros n H. simpl. reflexivity.
+  - intros n H. induction n.
+    + inversion H.
+    + simpl in H. inversion H. simpl. rewrite -> H1. apply IHl in H1. apply H1. Qed. 
 (** [] *)
 
 
